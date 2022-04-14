@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">TagHiveMT</string>
+    <string name="name">Name</string>
+    <string name="last_price">Last Price</string>
+    <string name="volume">Volume</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="network_failure">Network Failure</string>
+    <string name="conversion_error">Conversion Error</string>
+    <string name="btc_inr">BTC/INR</string>
+    <string name="price">2500000</string>
+    <string name="txtvolume">2500000</string>
+    <string name="cryptoname">BTC</string>
+    <string name="crypto">Crypto</string>
+    <string name="slace">/</string>
+</resources>
