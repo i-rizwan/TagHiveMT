@@ -12,4 +12,5 @@
     <string name="cryptoname">BTC</string>
     <string name="crypto">Crypto</string>
     <string name="slace">/</string>
+    <string name="action_settings">Settings</string>
 </resources>

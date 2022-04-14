@@ -10,13 +10,14 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taghiveddemoapp.R
 import com.example.taghiveddemoapp.adapter.CryptoAdapter
 import com.example.taghiveddemoapp.adapter.OnItemClickListenerCommunicator
 import com.example.taghiveddemoapp.databinding.ActivityMainBinding
 import com.example.taghiveddemoapp.model.CryptoResponseItem
-import com.example.taghiveddemoapp.utils.Resource
+import com.example.taghiveddemoapp.utils.Status
 import com.example.taghiveddemoapp.viewModule.MainCryptoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,45 +36,47 @@ class MainCryptoActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         arrayList = ArrayList()
-
+        pDialog = ProgressDialog(this)
         getData()
 
-        binding.swipeContainer.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(this, R.color.black))
+        binding.swipeContainer.setProgressBackgroundColorSchemeColor(
+            ContextCompat.getColor(
+                this,
+                R.color.black
+            )
+        )
         binding.swipeContainer.setColorSchemeColors(Color.WHITE)
         binding.swipeContainer.setOnRefreshListener { callRefreshLogic() }
     }
 
 
     private fun getData() {
-        mainCryptoViewModel.getCryptos()
-        mainCryptoViewModel.cryptoValue.observe(this) { event ->
-            event.getContentIfNotHandled()?.let { response ->
-                when (response) {
-                    is Resource.Success -> {
-                        hidePDialog()
-                        response.data?.let {
-                            arrayList = response.data
-                            cryptoAdapter =
-                                CryptoAdapter(applicationContext, arrayList, communicator)
-                            binding.rcvList.layoutManager = LinearLayoutManager(this)
-                            binding.rcvList.adapter = cryptoAdapter
-                        }
-                    }
 
-                    is Resource.Error -> {
-                        hidePDialog()
-                        response.message?.let { message ->
-                            Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
 
-                    is Resource.Loading -> {
-                        showdialog()
+        mainCryptoViewModel.finalCryptoResponse.observe(this, Observer {
+            when (it.status) {
+                Status.SUCCESS -> {
+                    hidePDialog()
+                    it.data?.let {
+                        arrayList = it
+                        cryptoAdapter = CryptoAdapter(applicationContext, arrayList, communicator)
+                        binding.rcvList.layoutManager = LinearLayoutManager(this)
+                        binding.rcvList.adapter = cryptoAdapter
+                        cryptoAdapter.notifyDataSetChanged()
+                    }
+                }
+                Status.LOADING -> {
+                    showdialog()
+                }
+                Status.ERROR -> {
+                    //Handle Error
+                    hidePDialog()
+                    it.message?.let { message ->
+                        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
                     }
                 }
             }
-        }
-
+        })
 
     }
 
@@ -88,7 +91,7 @@ class MainCryptoActivity : AppCompatActivity() {
 
     @Suppress("DEPRECATION")
     private fun showdialog() {
-        pDialog = ProgressDialog(this)
+
         pDialog.setMessage("Loading...")
         pDialog.setCancelable(false)
         pDialog.setCanceledOnTouchOutside(false)
@@ -104,11 +107,9 @@ class MainCryptoActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
     private fun callRefreshLogic() {
-        arrayList.clear()
         getData()
-        cryptoAdapter = CryptoAdapter(applicationContext, arrayList, communicator)
-        binding.rcvList.adapter = cryptoAdapter
         binding.swipeContainer.isRefreshing = false
     }
 
