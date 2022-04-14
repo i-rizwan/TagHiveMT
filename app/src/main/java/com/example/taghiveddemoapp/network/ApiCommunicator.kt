@@ -15,4 +15,7 @@ interface ApiCommunicator {
     suspend fun getCryptoDetails(@Query("symbol") symbol: String): Response<GetCryptoResponse>
 
 
+
+
+
 }

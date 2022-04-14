@@ -35,7 +35,7 @@ class MainCryptoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        arrayList = ArrayList()
         setupUI()
         getData()
 
@@ -69,12 +69,13 @@ class MainCryptoActivity : AppCompatActivity() {
     }
 
     private fun getData() {
+        mainCryptoViewModel.getCryptoList()
         mainCryptoViewModel.finalCryptoResponse.observe(this, Observer {
             when (it.status) {
                 Status.SUCCESS -> {
                     hidePDialog()
                     it.data?.let {
-                        // arrayList = it
+                        arrayList = it
                         renderList(it)
                     }
                 }
@@ -93,6 +94,7 @@ class MainCryptoActivity : AppCompatActivity() {
     }
 
     private fun renderList(dataList: ArrayList<CryptoResponseItem>) {
+
         cryptoAdapter.addData(dataList)
         cryptoAdapter.notifyDataSetChanged()
     }
@@ -117,10 +119,10 @@ class MainCryptoActivity : AppCompatActivity() {
 
     private val communicator = object : OnItemClickListenerCommunicator {
         override fun getOnItem(position: Int) {
-            val intent = Intent(applicationContext, MainCryptoActivity::class.java)
-            intent.putExtra("SYMBOL", arrayList[position].symbol)
-            intent.putExtra("BASEASSET", arrayList[position].baseAsset)
-            intent.putExtra("QUOTEASSET", arrayList[position].quoteAsset)
+            val intent = Intent(applicationContext, CryptoDetailsActivity::class.java)
+            intent.putExtra("currency_symbol", arrayList[position].symbol)
+            intent.putExtra("base_asset", arrayList[position].baseAsset)
+            intent.putExtra("quote_asset", arrayList[position].quoteAsset)
             startActivity(intent)
         }
     }
