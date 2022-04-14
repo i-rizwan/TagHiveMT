@@ -12,7 +12,7 @@ import com.example.taghiveddemoapp.model.CryptoResponseItem
 
 class CryptoAdapter(
     context: Context,
-    private val cryptolist: List<CryptoResponseItem>,
+    private val cryptolist: ArrayList<CryptoResponseItem>,
     private val communicator: OnItemClickListenerCommunicator
 ) :
     RecyclerView.Adapter<CryptoAdapter.CryptoHolder>() {
@@ -23,6 +23,11 @@ class CryptoAdapter(
         val rowView: View = layoutInflater.inflate(R.layout.raw_crypto, parent, false)
         return CryptoHolder(rowView)
 
+
+    }
+
+    fun addData(list: ArrayList<CryptoResponseItem>) {
+        cryptolist.addAll(list)
 
     }
 
@@ -55,5 +60,5 @@ class CryptoAdapter(
 }
 
 interface OnItemClickListenerCommunicator {
-    fun getOnItem( position: Int)
+    fun getOnItem(position: Int)
 }

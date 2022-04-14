@@ -17,7 +17,7 @@
             android:orientation="horizontal"
             android:weightSum="2">
 
-            <com.example.taghiveddemoapp.utils.MyTextView
+            <TextView
                 android:id="@+id/txtsymbol"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

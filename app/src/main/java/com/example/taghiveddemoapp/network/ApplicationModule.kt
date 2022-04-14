@@ -1,7 +1,6 @@
 package com.example.taghiveddemoapp.network
 
 import com.example.taghiveddemoapp.BuildConfig
-import com.example.taghiveddemoapp.constants.BASE_URL
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +10,10 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+
+
+private const val BASE_URL = "https://api.wazirx.com/sapi/v1/"
+
 
 @Module
 @InstallIn(SingletonComponent::class)

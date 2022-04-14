@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.taghiveddemoapp.R
 import com.example.taghiveddemoapp.adapter.CryptoAdapter
@@ -26,7 +27,6 @@ class MainCryptoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val mainCryptoViewModel: MainCryptoViewModel by viewModels()
 
-
     private lateinit var cryptoAdapter: CryptoAdapter
     private lateinit var pDialog: ProgressDialog
     private lateinit var arrayList: ArrayList<CryptoResponseItem>
@@ -35,41 +35,53 @@ class MainCryptoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        arrayList = ArrayList()
-        pDialog = ProgressDialog(this)
+
+        setupUI()
         getData()
 
+
+    }
+
+    private fun setupUI() {
+        pDialog = ProgressDialog(this)
+        binding.swipeContainer.setColorSchemeColors(Color.WHITE)
         binding.swipeContainer.setProgressBackgroundColorSchemeColor(
             ContextCompat.getColor(
                 this,
                 R.color.black
             )
         )
-        binding.swipeContainer.setColorSchemeColors(Color.WHITE)
+
+        binding.rcvList.layoutManager = LinearLayoutManager(this)
+        cryptoAdapter = CryptoAdapter(applicationContext, arrayListOf(), communicator)
+
+        binding.rcvList.addItemDecoration(
+            DividerItemDecoration(
+                binding.rcvList.context,
+                (binding.rcvList.layoutManager as LinearLayoutManager).orientation
+            )
+        )
+
+        binding.rcvList.adapter = cryptoAdapter
+
         binding.swipeContainer.setOnRefreshListener { callRefreshLogic() }
+
     }
 
-
     private fun getData() {
-
-
         mainCryptoViewModel.finalCryptoResponse.observe(this, Observer {
             when (it.status) {
                 Status.SUCCESS -> {
                     hidePDialog()
                     it.data?.let {
-                        arrayList = it
-                        cryptoAdapter = CryptoAdapter(applicationContext, arrayList, communicator)
-                        binding.rcvList.layoutManager = LinearLayoutManager(this)
-                        binding.rcvList.adapter = cryptoAdapter
-                        cryptoAdapter.notifyDataSetChanged()
+                        // arrayList = it
+                        renderList(it)
                     }
                 }
                 Status.LOADING -> {
                     showdialog()
                 }
                 Status.ERROR -> {
-                    //Handle Error
                     hidePDialog()
                     it.message?.let { message ->
                         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
@@ -78,6 +90,11 @@ class MainCryptoActivity : AppCompatActivity() {
             }
         })
 
+    }
+
+    private fun renderList(dataList: ArrayList<CryptoResponseItem>) {
+        cryptoAdapter.addData(dataList)
+        cryptoAdapter.notifyDataSetChanged()
     }
 
     private fun hidePDialog() {
@@ -107,6 +124,7 @@ class MainCryptoActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
 
     private fun callRefreshLogic() {
         getData()
