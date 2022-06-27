@@ -7,12 +7,11 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import com.example.taghiveddemoapp.R
 import com.example.taghiveddemoapp.databinding.ActivityCryptoDetailsBinding
-import com.example.taghiveddemoapp.utils.Status
+import com.example.taghiveddemoapp.utils.NetworkResult
 import com.example.taghiveddemoapp.viewModule.MainCryptoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -44,8 +43,6 @@ class CryptoDetailsActivity : AppCompatActivity() {
     }
 
     fun setUIAndData() {
-        //   setSupportActionBar(binding.toolBar.mainToolBar)
-
 
         binding.toolBar.back.setOnClickListener { finish() }
         binding.toolBar.back.isVisible = true
@@ -56,8 +53,10 @@ class CryptoDetailsActivity : AppCompatActivity() {
     private fun getDetailFromNetwork(symbol: String) {
         mainCryptoViewModel.getCryptoDetails(symbol)
         mainCryptoViewModel.cryptoGetDetailResponse.observe(this, Observer {
-            when (it.status) {
-                Status.SUCCESS -> {
+
+
+            when (it) {
+                is NetworkResult.Success -> {
                     hidePDialog()
                     it.data?.let { CryptoResponseDetails ->
                         binding.txtcname.setText(CryptoResponseDetails.baseAsset)
@@ -69,14 +68,15 @@ class CryptoDetailsActivity : AppCompatActivity() {
                         binding.txtcvolume.setText("Volume : " + CryptoResponseDetails.volume)
                     }
                 }
-                Status.LOADING -> {
-                    showDialog()
-                }
-                Status.ERROR -> {
+                is NetworkResult.Error -> {
                     hidePDialog()
                     it.message?.let { message ->
                         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
                     }
+                }
+
+                is NetworkResult.Loading -> {
+                    showDialog()
                 }
             }
         })

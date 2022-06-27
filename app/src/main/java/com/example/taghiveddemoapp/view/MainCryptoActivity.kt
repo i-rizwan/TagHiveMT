@@ -18,7 +18,7 @@ import com.example.taghiveddemoapp.adapter.CryptoAdapter
 import com.example.taghiveddemoapp.adapter.OnItemClickListenerCommunicator
 import com.example.taghiveddemoapp.databinding.ActivityMainBinding
 import com.example.taghiveddemoapp.model.CryptoResponseItem
-import com.example.taghiveddemoapp.utils.Status
+import com.example.taghiveddemoapp.utils.NetworkResult
 import com.example.taghiveddemoapp.viewModule.MainCryptoViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -71,25 +71,30 @@ class MainCryptoActivity : AppCompatActivity() {
     private fun getData() {
         mainCryptoViewModel.getCryptoList()
         mainCryptoViewModel.finalCryptoResponse.observe(this, Observer {
-            when (it.status) {
-                Status.SUCCESS -> {
+
+
+            when (it) {
+                is NetworkResult.Success -> {
+                    hidePDialog()
                     hidePDialog()
                     it.data?.let {
                         arrayList = it
                         renderList(it)
                     }
                 }
-                Status.LOADING -> {
-                    showdialog()
-                }
-                Status.ERROR -> {
+                is NetworkResult.Error -> {
                     hidePDialog()
                     it.message?.let { message ->
                         Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
                     }
                 }
+
+                is NetworkResult.Loading -> {
+                    showdialog()
+                }
             }
         })
+
 
     }
 

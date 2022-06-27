@@ -8,7 +8,7 @@ import com.example.taghiveddemoapp.model.CryptoResponse
 import com.example.taghiveddemoapp.model.GetCryptoResponse
 import com.example.taghiveddemoapp.network.ApiRepository
 import com.example.taghiveddemoapp.network.NetworkHelper
-import com.example.taghiveddemoapp.utils.Resource
+import com.example.taghiveddemoapp.utils.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,48 +21,61 @@ class MainCryptoViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-
-    private val _cryptoGetResponse = MutableLiveData<Resource<CryptoResponse>>()
-    val finalCryptoResponse: LiveData<Resource<CryptoResponse>> get() = _cryptoGetResponse
-
-
-    private val _cryptoGetDetailResponse = MutableLiveData<Resource<GetCryptoResponse>>()
-    val cryptoGetDetailResponse: LiveData<Resource<GetCryptoResponse>> get() = _cryptoGetDetailResponse
+    private val _cryptoGetResponse = MutableLiveData<NetworkResult<CryptoResponse>>()
+    val finalCryptoResponse: LiveData<NetworkResult<CryptoResponse>> get() = _cryptoGetResponse
 
 
-   fun getCryptoDetails(symbol: String) {
+    private val _cryptoGetDetailResponse = MutableLiveData<NetworkResult<GetCryptoResponse>>()
+    val cryptoGetDetailResponse: LiveData<NetworkResult<GetCryptoResponse>> get() = _cryptoGetDetailResponse
+
+
+    fun getCryptoDetails(symbol: String) {
 
         viewModelScope.launch {
             if (networkHelper.isNetworkConnected()) {
+                _cryptoGetDetailResponse.postValue(NetworkResult.Loading())
                 repository.getCryptoDetails(symbol).let {
                     if (it.isSuccessful) {
-                        _cryptoGetDetailResponse.postValue(Resource.success(it.body()))
-                    } else _cryptoGetDetailResponse.postValue(
-                        Resource.error(
-                            it.errorBody().toString(),
-                            null
-                        )
-                    )
+                        _cryptoGetDetailResponse.postValue(NetworkResult.Success(it.body()))
+
+                    } else
+                        _cryptoGetDetailResponse.postValue(NetworkResult.Error(it.message(), null))
+
+
                 }
-            } else _cryptoGetResponse.postValue(Resource.error("No internet connection", null))
+            } else
+                _cryptoGetDetailResponse.postValue(
+                    NetworkResult.Error(
+                        "No internet connection",
+                        null
+                    )
+                )
+
         }
 
     }
 
-   fun getCryptoList() {
+    fun getCryptoList() {
         viewModelScope.launch {
             if (networkHelper.isNetworkConnected()) {
                 repository.getCryptos().let {
                     if (it.isSuccessful) {
-                        _cryptoGetResponse.postValue(Resource.success(it.body()))
-                    } else _cryptoGetResponse.postValue(
-                        Resource.error(
-                            it.errorBody().toString(),
-                            null
+
+                        _cryptoGetResponse.postValue(NetworkResult.Success(it.body()))
+
+                    } else
+
+                        _cryptoGetResponse.postValue(
+                            NetworkResult.Error(
+                                it.errorBody().toString(),
+                                null
+                            )
                         )
-                    )
+
+
                 }
-            } else _cryptoGetResponse.postValue(Resource.error("No internet connection", null))
+            } else
+                _cryptoGetResponse.postValue(NetworkResult.Error("No internet connection", null))
         }
     }
 
