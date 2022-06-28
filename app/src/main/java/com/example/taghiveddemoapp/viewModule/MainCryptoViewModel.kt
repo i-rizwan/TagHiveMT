@@ -40,8 +40,6 @@ class MainCryptoViewModel @Inject constructor(
 
                     } else
                         _cryptoGetDetailResponse.postValue(NetworkResult.Error(it.message(), null))
-
-
                 }
             } else
                 _cryptoGetDetailResponse.postValue(
@@ -50,7 +48,6 @@ class MainCryptoViewModel @Inject constructor(
                         null
                     )
                 )
-
         }
 
     }
@@ -60,19 +57,14 @@ class MainCryptoViewModel @Inject constructor(
             if (networkHelper.isNetworkConnected()) {
                 repository.getCryptos().let {
                     if (it.isSuccessful) {
-
                         _cryptoGetResponse.postValue(NetworkResult.Success(it.body()))
-
                     } else
-
                         _cryptoGetResponse.postValue(
                             NetworkResult.Error(
                                 it.errorBody().toString(),
                                 null
                             )
                         )
-
-
                 }
             } else
                 _cryptoGetResponse.postValue(NetworkResult.Error("No internet connection", null))
